@@ -25,12 +25,12 @@
 - [x] **Test**: Unit tests for transcription service
 
 ## Phase 4: Content Generation Engine
-- [ ] Implement `src/generation/content_generator.py`
-  - [ ] Prompt construction (System & User prompts)
-  - [ ] LLM Client integration (using Factory)
-  - [ ] JSON schema validation
-  - [ ] Error handling & Retries
-- [ ] **Test**: Unit tests for content generator
+- [x] Implement `src/generation/content_generator.py`
+  - [x] Prompt construction (System & User prompts)
+  - [x] LLM Client integration (using Factory, supports Gemini/OpenAI/Groq)
+  - [x] JSON schema validation
+  - [x] Error handling & Retries (Basic exception handling implemented)
+- [x] **Test**: Unit tests for content generator
 
 ## Phase 5: PDF Design & Generation
 - [ ] Implement `src/design/pdf_designer.py`
