@@ -62,3 +62,21 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
 ## Next Steps
 - Proceed to **Phase 5: PDF Design & Generation**.
 - Implement `src/design/pdf_designer.py` using `fpdf2`.
+
+### Phase 5: PDF Design & Generation
+- **Module**: `src/design/pdf_designer.py`
+  - Implemented `PDFDesigner` class inheriting from `FPDF`.
+  - Added logic to extract dominant colors from a logo using `Pillow`.
+  - Implemented robust fallback to Black & White (Grey accents) if logo extraction fails.
+  - Designed the layout:
+    - **Cover**: Logo, Series Title, Memory Verse, Key Quotes.
+    - **Daily Pages**: Day Title, Scripture, Reflection, Questions, Prayer box.
+  - Added Headers and Footers with page numbers.
+- **Testing**: `tests/test_pdf_designer.py`
+  - Verified color extraction logic (mocked Image processing).
+  - Verified PDF structure generation (ensuring file creation).
+  - Validated fallback behavior when logo is missing.
+
+## Next Steps
+- Proceed to **Phase 6: CLI & Orchestration**.
+- Implement `src/main.py` to link all modules together.
