@@ -33,7 +33,7 @@ class BibleFetcher:
                 text = self._fetch_single_ref(ref, version)
                 if text:
                     full_text.append(text)
-            return "\n\n".join(full_text) if full_text else None
+            return " ".join(full_text) if full_text else None
 
         return self._fetch_single_ref(clean_ref, version)
 
@@ -47,8 +47,8 @@ class BibleFetcher:
             response = requests.get(url, params=params, timeout=10)
             if response.status_code == 200:
                 data = response.json()
-                # The API returns 'text' which combines all verses
-                return data.get("text", "").strip()
+                # The API returns 'text' which combines all verses. Remove newlines for flow.
+                return data.get("text", "").replace('\n', ' ').strip()
             else:
                 logger.warning(f"Failed to fetch scripture {reference}: Status {response.status_code}")
                 return None

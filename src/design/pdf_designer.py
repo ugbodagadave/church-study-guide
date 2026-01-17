@@ -142,7 +142,12 @@ class PDFDesigner(FPDF):
         # Preacher Name
         if "preacher_name" in content and content["preacher_name"]:
             self._set_font('I', 12)
-            self.cell(0, 8, f"By {content['preacher_name']}", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+            self.set_text_color(*self.accent_color)
+            self.cell(0, 8, "By", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+            
+            self._set_font('B', 16)
+            self.set_text_color(*self.primary_color)
+            self.cell(0, 10, content['preacher_name'], new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
         
         self.ln(20)
         
@@ -159,26 +164,13 @@ class PDFDesigner(FPDF):
         self._set_font('I', 11)
         self.set_text_color(50, 50, 50)
         self.multi_cell(160, 6, content.get("memory_verse", ""), align='L')
-        
-        # Key Quotes
-        self.ln(30)
-        if "key_quotes" in content:
-            self._set_font('B', 12)
-            self.set_text_color(*self.primary_color)
-            self.cell(0, 10, "KEY QUOTES", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-            self.ln(5)
-            
-            self._set_font('', 10)
-            self.set_text_color(0, 0, 0)
-            for quote in content["key_quotes"]:
-                self.multi_cell(0, 6, f'"{quote}"', align='C')
-                self.ln(4)
 
     def _create_day_page(self, day_data: Dict[str, Any]):
         # Day Header
         self._set_font('B', 16)
         self.set_text_color(*self.primary_color)
-        self.cell(0, 10, f"DAY {day_data.get('day', '?')}: {day_data.get('title', '').upper()}", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L')
+        self.multi_cell(0, 10, f"DAY {day_data.get('day', '?')}: {day_data.get('title', '').upper()}", align='L')
+        self.ln(2)
         
         # Scripture
         self.ln(5)

@@ -5,7 +5,7 @@ This document provides a technical overview of the Church Study Guide Generator,
 ## Architecture Overview
 
 The system follows a sequential pipeline architecture:
-`Ingestion -> Transcription -> Content Generation -> PDF Design`
+`Ingestion -> Transcription -> Content Generation (+ Scripture Retrieval) -> PDF Design`
 
 It uses a **Factory Pattern** for LLM provider abstraction, allowing seamless switching between Gemini, OpenAI, and Groq without changing core logic.
 
@@ -14,12 +14,12 @@ It uses a **Factory Pattern** for LLM provider abstraction, allowing seamless sw
 ```
 Church Study Guide/
 ├── src/
-│   ├── ingestion/         # Audio downloading logic
-│   ├── transcription/     # Speech-to-text integration
+│   ├── ingestion/         # Audio downloading logic (yt-dlp)
+│   ├── transcription/     # Speech-to-text integration (AssemblyAI)
 │   ├── generation/        # LLM prompts & generation logic
 │   ├── design/            # PDF generation & layout
 │   ├── providers/         # LLM Factory & Clients
-│   ├── utils/             # Helpers (Logger, etc.)
+│   ├── utils/             # Helpers (Logger, BibleFetcher, etc.)
 │   └── main.py            # CLI Orchestrator
 ├── assets/                # Fonts & Images
 ├── docs/                  # Documentation
@@ -37,14 +37,15 @@ Church Study Guide/
     - Handles top-level error catching and logging.
 
 ### 2. Audio Ingestion (`src/ingestion/audio_downloader.py`)
-- **Library**: `pytube`
+- **Library**: `yt-dlp`
 - **Functionality**:
     - Downloads audio streams from YouTube videos.
-    - Converts streams to MP3 format.
-    - **Validation**: Checks for file size limits (<500MB) to prevent API timeouts.
+    - Extracts metadata (title, duration).
+    - **Validation**: Checks for valid YouTube URLs.
 
 ### 3. Transcription (`src/transcription/transcriber.py`)
 - **Service**: AssemblyAI API
+- **Class**: `TranscriptionService`
 - **Model**: Universal Speech Model (Best-in-class accuracy).
 - **Process**:
     - Uploads local audio file to AssemblyAI.
@@ -57,34 +58,44 @@ Church Study Guide/
 - **Pattern**: Uses `LLMFactory` (`src/providers/llm_factory.py`) to instantiate the requested provider (Gemini/OpenAI/Groq).
 - **Prompt Engineering**:
     - **System Prompt**: Defines the persona as a "Theological Content Curator".
-    - **JSON Enforcement**: Uses strict JSON schema enforcement (via `response_mime_type="application/json"` or provider equivalents) to ensure the output is machine-readable.
+    - **JSON Enforcement**: Uses strict JSON schema enforcement to ensure machine-readable output.
+    - **Simplicity**: Enforces simple, direct language and single scripture references.
 - **Output**: A JSON object containing:
-    - Series Title
-    - Memory Verse
-    - 6 Days of content (Scripture, Reflection, Questions, Prayer).
+    - Series Title & Memory Verse Reference
+    - 6 Days of content (Scripture Reference, Reflection, Questions, Prayer).
 
-### 5. PDF Design (`src/design/pdf_designer.py`)
+### 5. Scripture Retrieval (`src/utils/bible_fetcher.py`)
+- **API**: bible-api.com
+- **Role**: Fetches actual scripture text to prevent LLM hallucinations.
+- **Functionality**:
+    - Takes references (e.g., "John 3:16") and version (e.g., "KJV").
+    - Retrieves text and removes formatting/line breaks for smooth reading flow.
+    - Enriches the JSON content before PDF generation.
+
+### 6. PDF Design (`src/design/pdf_designer.py`)
 - **Library**: `fpdf2`
 - **Key Features**:
-    - **Inheritance**: Subclasses `FPDF` to create custom Header/Footer methods.
+    - **Dynamic Layout**: Automatically calculates text height for prayers and reflections to prevent overflow.
     - **Dynamic Branding**: Uses `Pillow` (PIL) to analyze the provided logo (`--logo`).
         - Extracts the dominant color (Primary) and a secondary color (Accent).
-        - Falls back to Black/Grey if no logo is provided or extraction fails.
-    - **Typography**: Loads **Montserrat** fonts dynamically from `assets/fonts/`.
-    - **Layout**: Programmatic placement of text blocks, rectangles, and images using `x, y` coordinates.
+    - **Typography**: Loads **Montserrat** fonts dynamically.
+    - **Cover Page**: Features bold Preacher Name, Series Title, and Memory Verse.
 
 ## Data Flow
 
-1.  **Input**: User provides `https://youtube.com/...`
-2.  **Audio**: Saved as `audio/video_title.mp3`
-3.  **Transcript**: `transcriber.transcribe("audio/video_title.mp3")` -> returns `str` (text).
-4.  **JSON Content**: `content_generator.generate_content(text)` -> returns `dict`.
-5.  **PDF**: `pdf_designer.create_pdf(dict, "output/guide.pdf")` -> writes file to disk.
+1.  **Input**: User provides `https://youtube.com/...` + Preacher Name + Series.
+2.  **Audio**: Downloaded via `yt-dlp` to `audio/video_title.webm` (or similar).
+3.  **Transcript**: `transcriber.transcribe_audio(...)` -> returns `str` (text).
+4.  **JSON Content**: `content_generator.generate_content(text)` -> calls LLM.
+5.  **Enrichment**: `content_generator` calls `BibleFetcher` to fill in `scripture` and `memory_verse` texts.
+6.  **PDF**: `pdf_designer.create_pdf(dict, "output/guide.pdf")` -> writes file to disk.
 
 ## Key Dependencies
 
 - `assemblyai`: Transcription API client.
 - `google-generativeai` / `openai` / `groq`: LLM SDKs.
+- `yt-dlp`: YouTube audio download.
 - `fpdf2`: PDF generation.
 - `Pillow`: Image processing (color extraction).
+- `requests`: For Bible API calls.
 - `python-dotenv`: Environment variable management.

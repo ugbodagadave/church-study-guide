@@ -10,37 +10,48 @@ class TestContentGenerator:
         generator = ContentGenerator()
         assert generator.provider == 'gemini'
 
+    @patch('src.generation.content_generator.BibleFetcher')
     @patch('src.generation.content_generator.get_llm_client')
-    def test_generate_content_gemini_success(self, mock_get_client):
+    def test_generate_content_gemini_success(self, mock_get_client, mock_bible_fetcher):
         # Setup Gemini mock
         mock_client = MagicMock()
         mock_response = MagicMock()
-        mock_response.text = '{"series_title": "Test Series", "memory_verse": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
+        mock_response.text = '{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
         mock_client.generate_content.return_value = mock_response
         
         mock_get_client.return_value = (mock_client, 'gemini')
         
+        # Setup BibleFetcher mock
+        mock_fetcher_instance = mock_bible_fetcher.return_value
+        mock_fetcher_instance.get_scripture.return_value = "For God so loved..."
+
         generator = ContentGenerator()
         result = generator.generate_content("transcript text")
         
         assert result['series_title'] == "Test Series"
         assert len(result['days']) == 6
+        assert "John 3:16" in result['memory_verse']
         mock_client.generate_content.assert_called_once()
 
+    @patch('src.generation.content_generator.BibleFetcher')
     @patch('src.generation.content_generator.get_llm_client')
     @patch('src.generation.content_generator.os.getenv')
-    def test_generate_content_openai_success(self, mock_getenv, mock_get_client):
+    def test_generate_content_openai_success(self, mock_getenv, mock_get_client, mock_bible_fetcher):
         # Setup OpenAI mock
         mock_client = MagicMock()
         mock_completion = MagicMock()
         mock_message = MagicMock()
-        mock_message.content = '{"series_title": "Test Series", "memory_verse": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
+        mock_message.content = '{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
         mock_completion.choices = [MagicMock(message=mock_message)]
         mock_client.chat.completions.create.return_value = mock_completion
         
         mock_get_client.return_value = (mock_client, 'openai')
         mock_getenv.return_value = 'gpt-4'
         
+        # Setup BibleFetcher mock
+        mock_fetcher_instance = mock_bible_fetcher.return_value
+        mock_fetcher_instance.get_scripture.return_value = "For God so loved..."
+
         generator = ContentGenerator()
         result = generator.generate_content("transcript text")
         

@@ -42,8 +42,23 @@ class ContentGenerator:
             raise
 
     def _enrich_scriptures(self, data: Dict[str, Any], version: str):
-        """Fetches scripture text for each day using BibleFetcher"""
+        """Fetches scripture text for each day and memory verse using BibleFetcher"""
         logger.info(f"Fetching scripture texts (Version: {version.upper()})...")
+        
+        # Enrich Memory Verse
+        mv_ref = data.get("memory_verse_reference")
+        if mv_ref:
+            text = self.bible_fetcher.get_scripture(mv_ref, version)
+            if text:
+                data["memory_verse"] = f"{mv_ref} ({version.upper()}):\n{text}"
+            else:
+                data["memory_verse"] = f"{mv_ref} (Text not found)"
+        else:
+            # Backward compatibility if LLM outputs old key or fails
+            if "memory_verse" not in data:
+                 data["memory_verse"] = "Memory verse not available"
+
+        # Enrich Daily Scriptures
         for day in data.get("days", []):
             ref = day.get("scripture_reference")
             # If scripture_reference is missing, check if 'scripture' exists and use it as reference
@@ -108,10 +123,15 @@ class ContentGenerator:
 
     def _validate_schema(self, data: Dict[str, Any]):
         """Simple schema validation"""
-        required_keys = ["series_title", "memory_verse", "days", "key_quotes"]
+        # Note: 'memory_verse' changed to 'memory_verse_reference' in new schema
+        required_keys = ["series_title", "days", "key_quotes"] 
         for key in required_keys:
             if key not in data:
                 raise ValueError(f"Missing required key in JSON: {key}")
+        
+        # Check for memory verse reference or legacy memory verse
+        if "memory_verse_reference" not in data and "memory_verse" not in data:
+             raise ValueError("Missing memory_verse_reference in JSON")
         
         if not isinstance(data["days"], list):
             raise ValueError("'days' must be a list")

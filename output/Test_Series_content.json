@@ -1,6 +1,6 @@
 {
   "series_title": "Test Series",
-  "memory_verse": "John 3:16",
+  "memory_verse_reference": "John 3:16",
   "days": [
     {},
     {},
@@ -9,5 +9,6 @@
     {},
     {}
   ],
-  "key_quotes": []
+  "key_quotes": [],
+  "memory_verse": "John 3:16 (KJV):\nFor God so loved..."
 }

@@ -6,9 +6,10 @@ This tool automatically converts church sermon audio (from YouTube or local file
 
 ## Features
 
-- **Audio Ingestion**: Downloads audio directly from YouTube or accepts local MP3 files.
+- **Audio Ingestion**: Downloads audio directly from YouTube (using `yt-dlp`) or accepts local audio files.
 - **AI Transcription**: Uses AssemblyAI for high-accuracy speech-to-text conversion.
 - **Content Generation**: Generates a 6-day devotional plan using advanced LLMs (Gemini, OpenAI, or Groq).
+- **Reliable Scripture**: Integrates with Bible-API.com to fetch accurate scripture texts (KJV, WEB, etc.) instead of relying on AI hallucination.
 - **Professional Design**: Creates print-ready PDFs with custom branding (church logo), colors, and typography (Montserrat).
 
 ## Setup
@@ -44,12 +45,12 @@ Run the tool via the command line interface (CLI).
 
 ### 1. Process a YouTube Video
 ```bash
-python src/main.py --url "https://www.youtube.com/watch?v=VIDEO_ID" --series "The Book of Romans" --provider gemini
+python src/main.py --url "https://www.youtube.com/watch?v=VIDEO_ID" --series "The Book of Romans" --preacher "Pastor John Doe" --provider gemini
 ```
 
 ### 2. Process a Local Audio File
 ```bash
-python src/main.py --file "path/to/sermon.mp3" --logo "assets/logo.png" --series "Sunday Service"
+python src/main.py --file "path/to/sermon.mp3" --logo "assets/logo.png" --series "Sunday Service" --preacher "Pastor Jane Doe"
 ```
 
 ### CLI Arguments
@@ -59,6 +60,8 @@ python src/main.py --file "path/to/sermon.mp3" --logo "assets/logo.png" --series
 | `--file` | Path to a local audio file (MP3/WAV). | None |
 | `--provider` | AI Provider to use (`gemini`, `openai`, `groq`). | `gemini` |
 | `--series` | Title of the sermon series for the PDF header. | "Sermon Series" |
+| `--preacher` | Name of the preacher for the cover page. | "" |
+| `--bible-version` | Bible version for scriptures (`kjv`, `web`, `rvr`, etc.). | `kjv` |
 | `--logo` | Path to a church logo image (PNG/JPG) for branding. | None |
 
 ## Output
