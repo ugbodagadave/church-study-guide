@@ -17,12 +17,12 @@
 - [x] **Test**: Unit tests for audio downloader
 
 ## Phase 3: Transcription Service
-- [ ] Implement `src/transcription/transcriber.py`
-  - [ ] AssemblyAI client integration
-  - [ ] Transcription job submission
-  - [ ] Polling/Webhook handling for completion
-  - [ ] Output saving (Raw Text + JSON)
-- [ ] **Test**: Unit tests for transcription service
+- [x] Implement `src/transcription/transcriber.py`
+  - [x] AssemblyAI client integration
+  - [x] Transcription job submission (using `transcribe()` blocking call)
+  - [x] Configured Universal model, Speaker Diarization, Punctuation
+  - [x] Output saving (Raw Text + JSON with timestamps/utterances)
+- [x] **Test**: Unit tests for transcription service
 
 ## Phase 4: Content Generation Engine
 - [ ] Implement `src/generation/content_generator.py`
