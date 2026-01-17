@@ -1,7 +1,7 @@
 assemblyai
 python-dotenv
 fpdf2
-pytube
+yt-dlp
 requests
 pillow
 google-generativeai

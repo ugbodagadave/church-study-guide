@@ -1,6 +1,5 @@
 import os
-import logging
-from pytube import YouTube
+import yt_dlp
 from typing import Optional
 from src.utils.logger import setup_logger
 
@@ -18,7 +17,7 @@ class AudioDownloader:
 
     def download_audio(self, url: str, prefix: str = "") -> Optional[str]:
         """
-        Download audio from a YouTube URL.
+        Download audio from a YouTube URL using yt-dlp.
         Returns the path to the downloaded file or None if failed.
         """
         try:
@@ -26,35 +25,40 @@ class AudioDownloader:
                 logger.error(f"Invalid YouTube URL: {url}")
                 raise ValueError("Invalid YouTube URL")
 
-            yt = YouTube(url)
-            
-            # Check duration (15-90 mins typical, but we just warn for now or enforce limit if strict)
-            duration_mins = yt.length / 60
-            logger.info(f"Video duration: {duration_mins:.2f} minutes")
-            
-            # Get audio stream
-            audio_stream = yt.streams.filter(only_audio=True).first()
-            if not audio_stream:
-                logger.error("No audio stream found")
-                return None
+            # Get metadata first
+            with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+                try:
+                    info_dict = ydl.extract_info(url, download=False)
+                    video_title = info_dict.get('title', 'audio')
+                    duration = info_dict.get('duration', 0)
+                    logger.info(f"Video duration: {duration/60:.2f} minutes")
+                except Exception as e:
+                    logger.error(f"Failed to extract info: {e}")
+                    raise
 
-            # Generate filename
-            safe_title = "".join([c for c in yt.title if c.isalnum() or c in (' ', '-', '_')]).strip()
-            filename = f"{prefix}_{safe_title}.mp3" if prefix else f"{safe_title}.mp3"
+            # Sanitized title
+            safe_title = "".join([c for c in video_title if c.isalnum() or c in (' ', '-', '_')]).strip()
             
-            logger.info(f"Downloading: {yt.title} -> {filename}")
+            # Configure download options
+            # Since ffmpeg is missing, we just download the best audio format
+            out_tmpl = os.path.join(self.output_dir, f"{prefix}_{safe_title}.%(ext)s" if prefix else f"{safe_title}.%(ext)s")
             
-            # Download
-            out_file = audio_stream.download(output_path=self.output_dir, filename=filename)
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'outtmpl': out_tmpl,
+                'quiet': True,
+                'no_warnings': True,
+            }
             
-            # Rename to mp3 if needed (pytube usually saves as mp4/webm audio)
-            # Actually download method with filename argument saves it as provided, 
-            # but the content is still mp4/webm container usually. 
-            # Ideally we should convert with ffmpeg, but for now we just save raw.
-            # The prompt says "Output: MP3 file". Pytube downloads audio as mp4 usually.
-            # We will just return the path for now.
-            
-            return out_file
+            logger.info(f"Downloading: {video_title}")
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                # ydl.prepare_filename(info) gives the expected filename with the correct extension
+                filename = ydl.prepare_filename(info)
+                
+            logger.info(f"Downloaded to: {filename}")
+            return filename
 
         except Exception as e:
             logger.error(f"Error downloading audio: {e}")

@@ -80,3 +80,34 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
 ## Next Steps
 - Proceed to **Phase 6: CLI & Orchestration**.
 - Implement `src/main.py` to link all modules together.
+
+### Phase 6: CLI & Orchestration
+- **Module**: `src/main.py`
+  - Implemented the main entry point for the application.
+  - Integrates all previous modules: Audio Download -> Transcription -> Content Generation -> PDF Design.
+  - **CLI Usage**:
+    ```bash
+    # Run with YouTube URL
+    python src/main.py --url "https://youtube.com/watch?v=..." --series "Book of John" --provider gemini
+
+    # Run with local file
+    python src/main.py --file "audio/sermon.mp3" --logo "assets/logo.png"
+    ```
+  - **Arguments**:
+    - `--url`: YouTube URL to download.
+    - `--file`: Path to local audio file (if not using URL).
+    - `--provider`: LLM Provider (`gemini`, `openai`, `groq`). Default: `gemini`.
+    - `--logo`: Path to church logo file for PDF branding.
+    - `--series`: Title of the sermon series (overrides generated title if needed).
+  - **Output**: Generates a PDF study guide in the `output/` directory.
+
+### Improvements & Fixes
+- **PDF Designer**:
+  - Fixed `fpdf2` deprecation warnings by updating positioning logic (`new_x`, `new_y`).
+  - Switched from Helvetica to **Montserrat** font (Regular, Bold, Italic) as requested.
+  - Downloaded Montserrat font files to `assets/fonts`.
+
+## Next Steps
+- **Phase 7: Final Polish & Documentation**.
+- Create a `README.md` with setup instructions.
+- Final manual testing.

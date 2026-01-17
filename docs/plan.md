@@ -42,12 +42,18 @@
 - [x] **Test**: Unit tests for PDF designer
 
 ## Phase 6: CLI & Orchestration
-- [ ] Implement `src/main.py` (Orchestrator)
-  - [ ] Argument parsing (URL, Series Title, etc.)
-  - [ ] Linking pipeline steps (Download -> Transcribe -> Generate -> PDF)
-  - [ ] Progress reporting
-- [ ] **Test**: Integration tests
+- [x] Implement `src/main.py`
+  - [x] CLI argument parsing (`argparse`)
+  - [x] Integrate Audio Downloader
+  - [x] Integrate Transcription Service
+  - [x] Integrate Content Generation
+  - [x] Integrate PDF Designer
+  - [x] Full end-to-end workflow validation
+- [ ] **Test**: End-to-end run with sample audio (manual verification)
 
-## Phase 7: Final Polish
+## Phase 7: Final Polish & Documentation
+- [x] Create `README.md` (Setup & Usage)
+- [x] Create `docs/howitworks.md` (Technical Architecture)
 - [ ] Refine prompts based on output quality
 - [ ] Optimize PDF layout
+- [ ] Final manual testing

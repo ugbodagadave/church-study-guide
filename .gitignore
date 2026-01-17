@@ -5,3 +5,6 @@ venv/
 __pycache__/
 .DS_Store
 .trae
+logs
+output
+audio/
