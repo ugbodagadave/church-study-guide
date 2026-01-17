@@ -7,4 +7,5 @@ __pycache__/
 .trae
 logs
 output
+audio
 audio/
