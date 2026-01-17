@@ -9,3 +9,5 @@ google-generativeai
 # google-generativeai  # For Gemini
 # openai              # For OpenAI/OpenRouter
 # groq               # For Groq
+pytest
+pytest-mock
