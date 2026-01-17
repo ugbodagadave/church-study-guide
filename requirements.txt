@@ -1,0 +1,11 @@
+assemblyai
+python-dotenv
+fpdf2
+pytube
+requests
+pillow
+google-generativeai
+# Uncomment based on your LLM provider:
+# google-generativeai  # For Gemini
+# openai              # For OpenAI/OpenRouter
+# groq               # For Groq
