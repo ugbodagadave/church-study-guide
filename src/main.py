@@ -24,6 +24,8 @@ def main():
     parser.add_argument("--provider", default="gemini", choices=["gemini", "openai", "groq"], help="LLM Provider")
     parser.add_argument("--logo", help="Path to church logo for PDF branding")
     parser.add_argument("--series", default="Sermon Series", help="Series Title")
+    parser.add_argument("--preacher", default="", help="Name of the Preacher")
+    parser.add_argument("--bible-version", default="kjv", choices=["kjv", "web", "rvr"], help="Bible Version (default: kjv)")
     
     args = parser.parse_args()
     
@@ -68,10 +70,12 @@ def main():
     os.environ["LLM_PROVIDER"] = args.provider
     
     try:
-        content_json = generator.generate_content(transcript_text)
+        content_json = generator.generate_content(transcript_text, bible_version=args.bible_version)
         # Override series title if provided in CLI and not just default
         if args.series != "Sermon Series" or "series_title" not in content_json:
             content_json["series_title"] = args.series
+        # Add preacher name to content json
+        content_json["preacher_name"] = args.preacher
     except Exception as e:
         logger.error(f"Content generation failed: {e}")
         sys.exit(1)

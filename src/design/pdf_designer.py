@@ -138,6 +138,12 @@ class PDFDesigner(FPDF):
         self._set_font('', 14)
         self.set_text_color(*self.accent_color)
         self.cell(0, 10, "Discipleship & Study Guide", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+        
+        # Preacher Name
+        if "preacher_name" in content and content["preacher_name"]:
+            self._set_font('I', 12)
+            self.cell(0, 8, f"By {content['preacher_name']}", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+        
         self.ln(20)
         
         # Memory Verse Box
@@ -207,15 +213,78 @@ class PDFDesigner(FPDF):
             
         # Prayer
         self.ln(5)
-        self.set_fill_color(240, 240, 240) # Light grey bg
-        self.rect(self.get_x(), self.get_y(), 190, 25, 'F')
         
-        self.set_xy(self.get_x() + 2, self.get_y() + 2)
+        prayer_text = day_data.get('prayer', '')
+        
+        # Calculate height needed for prayer text
+        # Width = Page Width - Margins - Padding
+        # Assuming page width A4 (210) - margin (15*2) = 180
+        # Rect width is 190? Wait, default margin is 10mm or set to 15?
+        # In init: self.set_auto_page_break(auto=True, margin=15)
+        # So effective width is 180.
+        # Rect is drawn with hardcoded 190 width in previous code, which might be too wide if margin is 15.
+        # Let's check: 210 - 15 - 15 = 180.
+        # If I draw rect 190, it spills into right margin.
+        # I should use reliable width. self.epw gives effective page width.
+        
+        box_width = self.epw
+        self._set_font('I', 11)
+        
+        # Calculate lines
+        # multi_cell height calculation is tricky without simulating.
+        # FPDF2 has getting string width, but wrapping is complex.
+        # Best way is to use get_string_width logic or just estimate?
+        # FPDF2 allows printing to a dummy object or just calculating.
+        # Actually, let's just use multi_cell with split_only=True to count lines (available in newer fpdf2)
+        # Or just use a heuristic: chars per line ~ 90-100 for 11pt?
+        # Better: let's use multi_cell and let it flow, but we want a background rect.
+        # To do background rect dynamically, we can output the cell, measure Y change.
+        
+        start_y = self.get_y()
+        
+        # We need to draw rect first? No, if we draw rect first we need height.
+        # Approach: Calculate height first.
+        # lines = self.multi_cell(box_width - 10, 6, prayer_text, split_only=True) # split_only returns list of lines
+        # But split_only might not be available in all versions.
+        # Let's try to just print the text, capture the height, then backtrack? No.
+        
+        # Safe approach with FPDF2:
+        # 1. Save current Y.
+        # 2. Print text (invisible? No).
+        # 3. Calculate height.
+        
+        # Let's use the .multi_cell(dry_run=True) if available, or just estimate.
+        # Since I can't easily verify fpdf2 version features right now, let's use a safe estimation.
+        # 11pt font ~ 4mm height? line height is 6mm.
+        # Approx chars per line: 180mm / 2mm per char (avg) = 90 chars.
+        
+        # Let's try to use the multi_cell return value if possible, or just print it inside a cell that has fill.
+        # FPDF multi_cell can take 'fill=True'.
+        
+        self.set_fill_color(240, 240, 240) # Light grey bg
+        self.set_text_color(0, 0, 0)
+        
+        # Header "PRAYER"
         self._set_font('B', 11)
         self.set_text_color(*self.accent_color)
-        self.cell(0, 8, "PRAYER", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         
-        self.set_x(self.get_x() + 2)
+        # Draw header background? Or whole box background.
+        # Let's make the whole prayer section one block.
+        
+        # If we just want the box to resize, we can use multi_cell with fill.
+        # But we have a title "PRAYER" and then the text.
+        
+        # Let's print the title, then the text.
+        # To have a background for both, we need total height.
+        # Let's just print them sequentially with fill=True?
+        # But that leaves gaps between lines if not careful? No, multi_cell fills the line rect.
+        
+        # Simplified robust approach:
+        # 1. Print "PRAYER" with fill.
+        # 2. Print text with fill.
+        
+        self.cell(0, 8, "PRAYER", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
+        
         self._set_font('I', 11)
         self.set_text_color(0, 0, 0)
-        self.multi_cell(185, 6, day_data.get('prayer', ''))
+        self.multi_cell(0, 6, prayer_text, fill=True)

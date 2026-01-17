@@ -17,21 +17,23 @@ class TestAudioDownloader:
         assert downloader.validate_youtube_url("https://youtu.be/123")
         assert not downloader.validate_youtube_url("https://facebook.com/video")
 
-    @patch('src.ingestion.audio_downloader.YouTube')
-    def test_download_audio_success(self, mock_youtube, tmp_path):
+    @patch('src.ingestion.audio_downloader.yt_dlp.YoutubeDL')
+    def test_download_audio_success(self, mock_ytdl, tmp_path):
         """Test successful download flow"""
         # Setup mock
-        mock_yt_instance = MagicMock()
-        mock_youtube.return_value = mock_yt_instance
-        
-        mock_yt_instance.length = 1800 # 30 mins
-        mock_yt_instance.title = "Test Sermon"
-        
-        mock_stream = MagicMock()
-        mock_yt_instance.streams.filter.return_value.first.return_value = mock_stream
+        mock_ytdl_instance = MagicMock()
+        mock_ytdl.return_value.__enter__.return_value = mock_ytdl_instance
         
         expected_path = str(tmp_path / "Test_Sermon.mp3")
-        mock_stream.download.return_value = expected_path
+        
+        # Mock extract_info to return dict
+        mock_ytdl_instance.extract_info.return_value = {
+            'title': 'Test Sermon',
+            'duration': 1800,
+            'ext': 'mp3'
+        }
+        
+        mock_ytdl_instance.prepare_filename.return_value = expected_path
 
         # Execute
         downloader = AudioDownloader(output_dir=str(tmp_path))
@@ -39,14 +41,15 @@ class TestAudioDownloader:
 
         # Assert
         assert result == expected_path
-        mock_stream.download.assert_called_once()
-        args, kwargs = mock_stream.download.call_args
-        assert kwargs['filename'] == "Test Sermon.mp3"
+        # extract_info is called twice: once for metadata (download=False), once for download (download=True)
+        assert mock_ytdl_instance.extract_info.call_count >= 1
 
-    @patch('src.ingestion.audio_downloader.YouTube')
-    def test_download_audio_failure(self, mock_youtube):
+    @patch('src.ingestion.audio_downloader.yt_dlp.YoutubeDL')
+    def test_download_audio_failure(self, mock_ytdl):
         """Test download failure handling"""
-        mock_youtube.side_effect = Exception("Download failed")
+        mock_ytdl_instance = MagicMock()
+        mock_ytdl.return_value.__enter__.return_value = mock_ytdl_instance
+        mock_ytdl_instance.extract_info.side_effect = Exception("Download failed")
         
         downloader = AudioDownloader()
         

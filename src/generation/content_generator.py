@@ -5,15 +5,17 @@ from typing import Dict, Any, Optional
 from src.providers.llm_factory import get_llm_client
 from src.generation.prompts import DEVOTIONAL_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 from src.utils.logger import setup_logger
+from src.utils.bible_fetcher import BibleFetcher
 
 logger = setup_logger("content_generator")
 
 class ContentGenerator:
     def __init__(self):
         self.client, self.provider = get_llm_client()
+        self.bible_fetcher = BibleFetcher()
         logger.info(f"Initialized ContentGenerator with provider: {self.provider}")
 
-    def generate_content(self, transcript_text: str) -> Dict[str, Any]:
+    def generate_content(self, transcript_text: str, bible_version: str = "kjv") -> Dict[str, Any]:
         """
         Generates devotional content from transcript text.
         """
@@ -27,6 +29,9 @@ class ContentGenerator:
             parsed_json = self._parse_json_response(response_text)
             self._validate_schema(parsed_json)
             
+            # Enrich with actual scripture text
+            self._enrich_scriptures(parsed_json, bible_version)
+            
             # Save output
             self._save_output(parsed_json)
             
@@ -35,6 +40,26 @@ class ContentGenerator:
         except Exception as e:
             logger.error(f"Content generation failed: {e}")
             raise
+
+    def _enrich_scriptures(self, data: Dict[str, Any], version: str):
+        """Fetches scripture text for each day using BibleFetcher"""
+        logger.info(f"Fetching scripture texts (Version: {version.upper()})...")
+        for day in data.get("days", []):
+            ref = day.get("scripture_reference")
+            # If scripture_reference is missing, check if 'scripture' exists and use it as reference
+            if not ref and "scripture" in day:
+                 ref = day["scripture"]
+                 
+            if ref:
+                text = self.bible_fetcher.get_scripture(ref, version)
+                if text:
+                    day["scripture"] = f"{ref} ({version.upper()}): \"{text}\""
+                else:
+                    # Fallback: keep existing or mark as unavailable
+                    if "scripture" not in day or not day["scripture"]:
+                         day["scripture"] = f"{ref} (Text not found)"
+            else:
+                logger.warning(f"No scripture reference found for Day {day.get('day')}")
 
     def _call_llm(self, user_prompt: str) -> str:
         """Dispatches call to specific LLM provider"""

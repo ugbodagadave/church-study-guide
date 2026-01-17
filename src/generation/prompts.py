@@ -6,8 +6,10 @@ REQUIREMENTS:
 1. Create a structured 6-day guide (Day 1 to Day 6).
 2. Each day must include:
    - Title: A short, engaging title.
-   - Scripture: A relevant Bible verse (text and reference).
+   - Scripture Reference: A relevant Bible verse reference (e.g., "John 3:16") supporting the day's theme.
    - Reflection: A ~250 word devotional reflection based on the sermon's core points.
+     - TONE: Write in a DIRECT, personal, and encouraging voice. Do NOT use phrases like "The sermon says", "The speaker mentions", or "The text opens with". Instead, say "You are called to...", "God's word declares...", "Remember that...".
+     - SCRIPTURE: Include at least 2-3 inline scriptural references (e.g., Rom 8:28) within the text to support key points.
    - Questions: 2 specific application questions.
    - Prayer: A short prayer.
 3. Tone: Warm, encouraging, actionable, and theologically sound.
@@ -23,7 +25,7 @@ JSON SCHEMA:
     {
       "day": 1,
       "title": "string",
-      "scripture": "string",
+      "scripture_reference": "string",
       "reflection": "string",
       "questions": ["string", "string"],
       "prayer": "string"
