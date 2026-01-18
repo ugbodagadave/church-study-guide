@@ -80,22 +80,27 @@ class ContentGenerator:
         """Dispatches call to specific LLM provider"""
         logger.info(f"Sending request to {self.provider}...")
         
+        model_name = os.getenv('LLM_MODEL')
+        if not model_name:
+            raise ValueError("LLM_MODEL must be set in .env file")
+        
         if self.provider == 'gemini':
-            # Google Generative AI
-            # System instructions are set at model creation or part of the prompt in some versions.
-            # For gemini-pro, we can prepend system prompt or use system_instruction if supported by lib version.
-            # Simpler to just prepend for broad compatibility if system_instruction param isn't strictly enforced.
-            # However, google-generativeai v0.3+ supports system_instruction.
-            # Let's try to use the chat interface or generate_content with system prompt in context.
+            # Google Gen AI SDK (v1.0+ / Unified SDK)
+            # Client is initialized in factory, but we need to pass model name here
             
             full_prompt = f"{DEVOTIONAL_SYSTEM_PROMPT}\n\n{user_prompt}"
-            response = self.client.generate_content(full_prompt)
+            
+            # New SDK usage: client.models.generate_content
+            response = self.client.models.generate_content(
+                model=model_name,
+                contents=full_prompt
+            )
             return response.text
 
         elif self.provider in ['openai', 'openrouter', 'groq']:
             # OpenAI-compatible APIs
             response = self.client.chat.completions.create(
-                model=os.getenv('LLM_MODEL'),
+                model=model_name,
                 messages=[
                     {"role": "system", "content": DEVOTIONAL_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt}

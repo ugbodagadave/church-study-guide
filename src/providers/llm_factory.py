@@ -9,9 +9,9 @@ def get_llm_client():
     model = os.getenv('LLM_MODEL')
 
     if provider == 'gemini':
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        return genai.GenerativeModel(model), provider
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        return client, provider
         
     elif provider == 'openai':
         import openai

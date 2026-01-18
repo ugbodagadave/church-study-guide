@@ -4,7 +4,7 @@ fpdf2
 yt-dlp
 requests
 pillow
-google-generativeai
+google-genai
 # Uncomment based on your LLM provider:
 # google-generativeai  # For Gemini
 # openai              # For OpenAI/OpenRouter

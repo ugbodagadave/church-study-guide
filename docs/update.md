@@ -35,14 +35,17 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
 ### Phase 3: Transcription Service
 - **Module**: `src/transcription/transcriber.py`
   - Integrated `assemblyai` SDK.
-  - Configured transcription parameters: `speech_model="best"` (Universal-1), `speaker_labels=True` (Diarization), `language_detection=True`.
+  - **Refinement**: Simplified transcription output.
+    - Disabled Speaker Diarization (`speaker_labels=False`).
+    - Removed timestamps and confidence scores.
+    - Output is now a clean, ordered stream of text.
   - Implemented output handling:
     - Saves raw transcript to `output/{name}_transcript.txt`.
-    - Saves structured data (including confidence scores and speaker timestamps) to `output/{name}_transcript.json`.
+    - Saves structured data (simplified schema) to `output/{name}_transcript.json`.
 - **Testing**: `tests/test_transcriber.py`
   - Validated success flow with mocked AssemblyAI response.
   - Validated error handling (API errors, file not found).
-  - Verified JSON structure correctness.
+  - Verified JSON structure correctness (checked for absence of deprecated fields).
 
 ## Next Steps
 - Proceed to **Phase 4: Content Generation Engine**.
@@ -51,13 +54,20 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
 ### Phase 4: Content Generation Engine
 - **Module**: `src/generation/content_generator.py`
   - Implemented `ContentGenerator` class.
-  - Created prompt templates in `src/generation/prompts.py` enforcing strict JSON output.
+  - **SDK Migration**: Migrated from `google-generativeai` to `google-genai` (Unified SDK) to resolve deprecation warnings.
+  - **Configuration**: Enforced strict usage of `.env` for `LLM_MODEL`. Removed hardcoded fallbacks.
+  - **Prompt Engineering**:
+    - Updated `src/generation/prompts.py` to use JSON-formatted system instructions.
+    - Refined content style: "Mind Muscle" transformation, 350-word reflections, direct prayers.
+    - Removed meta-references (no "The sermon says..." or "The preacher mentions...").
+    - Single Application Question per day.
   - Implemented multi-provider support (Gemini, OpenAI, Groq) via `llm_factory`.
   - Added JSON parsing and schema validation to ensure the 6-day guide structure.
 - **Testing**: `tests/test_content_generator.py`
   - Verified logic for both Gemini and OpenAI/Groq clients using mocks.
   - Verified schema validation failures (missing keys, invalid JSON).
   - Verified output saving.
+  - Validated strict `.env` configuration.
 
 ## Next Steps
 - Proceed to **Phase 5: PDF Design & Generation**.
@@ -70,7 +80,7 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
   - Implemented robust fallback to Black & White (Grey accents) if logo extraction fails.
   - Designed the layout:
     - **Cover**: Logo, Series Title, Memory Verse, Key Quotes.
-    - **Daily Pages**: Day Title, Scripture, Reflection, Questions, Prayer box.
+    - **Daily Pages**: Day Title, Scripture, Reflection, Question, Prayer box.
   - Added Headers and Footers with page numbers.
 - **Testing**: `tests/test_pdf_designer.py`
   - Verified color extraction logic (mocked Image processing).
@@ -106,6 +116,10 @@ Successfully implemented the infrastructure foundation and the Audio Ingestion m
   - Fixed `fpdf2` deprecation warnings by updating positioning logic (`new_x`, `new_y`).
   - Switched from Helvetica to **Montserrat** font (Regular, Bold, Italic) as requested.
   - Downloaded Montserrat font files to `assets/fonts`.
+- **Refinements**:
+  - **Transcript**: Removed unnecessary metadata (confidence, timestamps) for cleaner LLM input.
+  - **Prompts**: Tuned for specific writing style and JSON reliability.
+  - **Codebase**: Removed hardcoded configurations to ensure security and flexibility.
 
 ## Next Steps
 - **Phase 7: Final Polish & Documentation**.

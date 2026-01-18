@@ -49,20 +49,21 @@ Church Study Guide/
 - **Model**: Universal Speech Model (Best-in-class accuracy).
 - **Process**:
     - Uploads local audio file to AssemblyAI.
-    - Initiates transcription with Speaker Diarization enabled.
+    - Initiates transcription (Speaker Diarization disabled for cleaner output).
     - Polls the API until status is `completed`.
-- **Output**: Raw text + Structured JSON (with timestamps/speakers).
+- **Output**: Raw text + Simplified JSON (Clean text stream without metadata clutter).
 
 ### 4. Content Generation (`src/generation/content_generator.py`)
 - **Role**: The "Theological Brain".
 - **Pattern**: Uses `LLMFactory` (`src/providers/llm_factory.py`) to instantiate the requested provider (Gemini/OpenAI/Groq).
+- **Technology**: Migrated to `google-genai` Unified SDK for future-proof Gemini integration.
 - **Prompt Engineering**:
     - **System Prompt**: Defines the persona as a "Theological Content Curator".
     - **JSON Enforcement**: Uses strict JSON schema enforcement to ensure machine-readable output.
-    - **Simplicity**: Enforces simple, direct language and single scripture references.
+    - **Style**: Enforces "Mind Muscle" transformation, 350-word reflections, and single application questions.
 - **Output**: A JSON object containing:
     - Series Title & Memory Verse Reference
-    - 6 Days of content (Scripture Reference, Reflection, Questions, Prayer).
+    - 6 Days of content (Scripture Reference, Reflection, Question, Prayer).
 
 ### 5. Scripture Retrieval (`src/utils/bible_fetcher.py`)
 - **API**: bible-api.com
@@ -93,7 +94,7 @@ Church Study Guide/
 ## Key Dependencies
 
 - `assemblyai`: Transcription API client.
-- `google-generativeai` / `openai` / `groq`: LLM SDKs.
+- `google-genai` / `openai` / `groq`: LLM SDKs (Migrated from `google-generativeai`).
 - `yt-dlp`: YouTube audio download.
 - `fpdf2`: PDF generation.
 - `Pillow`: Image processing (color extraction).
