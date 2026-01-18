@@ -190,18 +190,27 @@ class PDFDesigner(FPDF):
         self.set_text_color(0, 0, 0)
         self.multi_cell(0, 6, day_data.get('reflection', ''))
         
-        # Questions
+        # Question
         self.ln(8)
         self._set_font('B', 11)
         self.set_text_color(*self.accent_color)
-        self.cell(0, 8, "APPLICATION QUESTIONS", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        self.cell(0, 8, "APPLICATION QUESTION", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self._set_font('', 11)
         self.set_text_color(0, 0, 0)
         
-        questions = day_data.get('questions', [])
-        for i, q in enumerate(questions, 1):
-            self.multi_cell(0, 6, f"{i}. {q}")
-            self.ln(2)
+        # Support both new 'question' string and legacy 'questions' list
+        question = day_data.get('question')
+        if not question and 'questions' in day_data:
+            qs = day_data['questions']
+            if isinstance(qs, list) and qs:
+                question = qs[0]
+            elif isinstance(qs, str):
+                question = qs
+                
+        if question:
+            self.multi_cell(0, 6, question)
+            
+        self.ln(2)
             
         # Prayer
         self.ln(5)

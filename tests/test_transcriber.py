@@ -20,22 +20,10 @@ class TestTranscriptionService:
         mock_transcript.audio_duration = 10.5
         mock_transcript.confidence = 0.99
         
-        # Mock utterances
-        utt1 = MagicMock()
-        utt1.speaker = "A"
-        utt1.text = "Hello"
-        utt1.start = 0
-        utt1.end = 1000
-        utt1.confidence = 0.99
-        
-        utt2 = MagicMock()
-        utt2.speaker = "B"
-        utt2.text = "world."
-        utt2.start = 1000
-        utt2.end = 2000
-        utt2.confidence = 0.98
-        
-        mock_transcript.utterances = [utt1, utt2]
+        # Mock utterances (Should be ignored now)
+        # We can remove this setup or keep it to ensure it's not used.
+        # But to be clean, let's remove the detailed setup of utterances since we expect them to be ignored.
+        mock_transcript.utterances = []
         
         # Setup Transcriber instance mock
         mock_instance = mock_transcriber_cls.return_value
@@ -74,8 +62,11 @@ class TestTranscriptionService:
         with open(result['json_path'], 'r') as f:
             data = json.load(f)
             assert data['id'] == "fake_id"
-            assert len(data['utterances']) == 2
-            assert data['utterances'][0]['speaker'] == "A"
+            # Ensure unnecessary fields are removed
+            assert 'utterances' not in data
+            assert 'confidence' not in data
+            assert 'audio_duration' not in data
+            assert data['text'] == "Hello world."
             
         # Clean up created files in output folder
         if os.path.exists(result['json_path']):

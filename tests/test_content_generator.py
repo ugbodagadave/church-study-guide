@@ -16,7 +16,10 @@ class TestContentGenerator:
         # Setup Gemini mock
         mock_client = MagicMock()
         mock_response = MagicMock()
-        mock_response.text = '{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
+        # Mock with valid days containing 'question'
+        day_mock = '{"question": "Q1", "title": "T", "scripture_reference": "Ref", "reflection": "R", "prayer": "P"}'
+        days_json = f'[{day_mock}, {day_mock}, {day_mock}, {day_mock}, {day_mock}, {day_mock}]'
+        mock_response.text = f'{{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": {days_json}, "key_quotes": []}}'
         mock_client.generate_content.return_value = mock_response
         
         mock_get_client.return_value = (mock_client, 'gemini')
@@ -41,7 +44,10 @@ class TestContentGenerator:
         mock_client = MagicMock()
         mock_completion = MagicMock()
         mock_message = MagicMock()
-        mock_message.content = '{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": [{}, {}, {}, {}, {}, {}], "key_quotes": []}'
+        # Mock with valid days containing 'question'
+        day_mock = '{"question": "Q1", "title": "T", "scripture_reference": "Ref", "reflection": "R", "prayer": "P"}'
+        days_json = f'[{day_mock}, {day_mock}, {day_mock}, {day_mock}, {day_mock}, {day_mock}]'
+        mock_message.content = f'{{"series_title": "Test Series", "memory_verse_reference": "John 3:16", "days": {days_json}, "key_quotes": []}}'
         mock_completion.choices = [MagicMock(message=mock_message)]
         mock_client.chat.completions.create.return_value = mock_completion
         

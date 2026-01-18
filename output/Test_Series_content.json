@@ -2,12 +2,54 @@
   "series_title": "Test Series",
   "memory_verse_reference": "John 3:16",
   "days": [
-    {},
-    {},
-    {},
-    {},
-    {},
-    {}
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    },
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    },
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    },
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    },
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    },
+    {
+      "question": "Q1",
+      "title": "T",
+      "scripture_reference": "Ref",
+      "reflection": "R",
+      "prayer": "P",
+      "scripture": "Ref (KJV): \"For God so loved...\""
+    }
   ],
   "key_quotes": [],
   "memory_verse": "John 3:16 (KJV):\nFor God so loved..."

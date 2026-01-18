@@ -34,7 +34,7 @@ class TranscriptionService:
         # Note: speech_model=aai.SpeechModel.best maps to Universal-1
         config = aai.TranscriptionConfig(
             speech_model=aai.SpeechModel.best, 
-            speaker_labels=True,
+            speaker_labels=False,  # Disabled per user request
             language_detection=True,
             punctuate=True,
             format_text=True
@@ -57,25 +57,12 @@ class TranscriptionService:
             with open(raw_text_path, "w", encoding="utf-8") as f:
                 f.write(transcript.text)
                 
-            # Prepare Structured JSON
+            # Prepare Structured JSON (Simplified per user request)
             structured_data = {
                 "id": transcript.id,
                 "status": transcript.status,
-                "text": transcript.text,
-                "audio_duration": getattr(transcript, 'audio_duration', None),
-                "confidence": getattr(transcript, 'confidence', None),
-                "utterances": []
+                "text": transcript.text
             }
-
-            if hasattr(transcript, 'utterances') and transcript.utterances:
-                for utt in transcript.utterances:
-                    structured_data["utterances"].append({
-                        "speaker": utt.speaker,
-                        "text": utt.text,
-                        "start": utt.start,
-                        "end": utt.end,
-                        "confidence": utt.confidence
-                    })
             
             # Save JSON
             json_path = os.path.join(output_dir, f"{base_name}_transcript.json")

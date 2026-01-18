@@ -136,6 +136,16 @@ class ContentGenerator:
         if not isinstance(data["days"], list):
             raise ValueError("'days' must be a list")
             
+        # Validate day structure
+        for i, day in enumerate(data["days"]):
+            if "question" not in day and "questions" not in day:
+                 raise ValueError(f"Day {i+1} missing 'question' field")
+            
+            # Normalize to 'question' if 'questions' is present (legacy/LLM slip)
+            if "questions" in day and isinstance(day["questions"], list) and day["questions"]:
+                if "question" not in day:
+                    day["question"] = day["questions"][0] # Take first question
+            
         # Requirement: 6 days (or 5 days + cover, but prompt asks for 6 days)
         # Prompt says: "Create a structured 6-day guide"
         if len(data["days"]) < 5: 
