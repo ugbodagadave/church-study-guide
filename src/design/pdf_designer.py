@@ -80,19 +80,21 @@ class PDFDesigner(FPDF):
             except Exception as e:
                 logger.warning(f"Could not add logo image: {e}")
 
-        self.set_y(30)
+        band_top = 32
+        band_height = 34
+        self.set_y(band_top)
         self._set_font('B', 24)
         self.set_text_color(255, 255, 255)
         self.set_fill_color(*self.primary_color)
         self.set_x(0)
-        self.cell(self.w, 30, "", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
-        self.set_y(35)
+        self.cell(self.w, band_height, "", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
+        self.set_y(band_top + 8)
         self._set_font('B', 22)
         self.cell(0, 10, content.get("series_title", "Sermon Series").upper(), align='C')
 
         preacher_name = content.get("preacher_name") or ""
         if preacher_name:
-            self.ln(8)
+            self.ln(12)
             self._set_font('I', 11)
             self.set_text_color(230, 230, 230)
             self.cell(0, 6, "By", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
@@ -106,7 +108,7 @@ class PDFDesigner(FPDF):
             self.set_xy(name_x, self.get_y())
             self.cell(name_width, 10, preacher_name, border=0, align='C', fill=True)
 
-        self.set_y(90)
+        self.set_y(96)
         self.set_fill_color(252, 244, 249)
         self.set_draw_color(*self.accent_color)
         box_y = self.get_y()
@@ -127,13 +129,20 @@ class PDFDesigner(FPDF):
         self._set_font('B', 16)
         self.set_text_color(*self.primary_color)
         self.multi_cell(0, 10, f"DAY {day_data.get('day', '?')}: {day_data.get('title', '').upper()}", align='L')
-        self.ln(2)
+        self.ln(1)
+        self.set_draw_color(*self.secondary_color)
+        self.set_line_width(0.3)
+        y = self.get_y()
+        self.line(self.l_margin, y, self.w - self.r_margin, y)
+        self.ln(5)
         
         # Scripture
-        self.ln(5)
         self._set_font('B', 11)
-        self.set_text_color(*self.accent_color)
-        self.cell(0, 8, "SCRIPTURE READING", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        label = "SCRIPTURE READING"
+        label_width = self.get_string_width(label) + 6
+        self.set_fill_color(*self.accent_color)
+        self.set_text_color(255, 255, 255)
+        self.cell(label_width, 8, label, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L', fill=True)
         self._set_font('', 11)
         self.set_text_color(0, 0, 0)
         self.multi_cell(0, 6, day_data.get('scripture', ''))
@@ -141,8 +150,11 @@ class PDFDesigner(FPDF):
         # Reflection
         self.ln(8)
         self._set_font('B', 11)
-        self.set_text_color(*self.accent_color)
-        self.cell(0, 8, "REFLECTION", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        label = "REFLECTION"
+        label_width = self.get_string_width(label) + 6
+        self.set_fill_color(*self.accent_color)
+        self.set_text_color(255, 255, 255)
+        self.cell(label_width, 8, label, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L', fill=True)
         self._set_font('', 11)
         self.set_text_color(0, 0, 0)
         self.multi_cell(0, 6, day_data.get('reflection', ''))
@@ -150,8 +162,11 @@ class PDFDesigner(FPDF):
         # Question
         self.ln(8)
         self._set_font('B', 11)
-        self.set_text_color(*self.accent_color)
-        self.cell(0, 8, "APPLICATION QUESTION", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        label = "APPLICATION QUESTION"
+        label_width = self.get_string_width(label) + 6
+        self.set_fill_color(*self.accent_color)
+        self.set_text_color(255, 255, 255)
+        self.cell(label_width, 8, label, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L', fill=True)
         self._set_font('', 11)
         self.set_text_color(0, 0, 0)
         
@@ -170,10 +185,15 @@ class PDFDesigner(FPDF):
         self.ln(2)
             
         # Prayer
+        self.ln(7)
+        self.set_draw_color(*self.secondary_color)
+        self.set_line_width(0.2)
+        y = self.get_y()
+        self.line(self.l_margin, y, self.w - self.r_margin, y)
         self.ln(5)
-        
+
         prayer_text = day_data.get('prayer', '')
-        
+
         # Calculate height needed for prayer text
         # Width = Page Width - Margins - Padding
         # Assuming page width A4 (210) - margin (15*2) = 180
@@ -219,7 +239,7 @@ class PDFDesigner(FPDF):
         # Let's try to use the multi_cell return value if possible, or just print it inside a cell that has fill.
         # FPDF multi_cell can take 'fill=True'.
         
-        self.set_fill_color(240, 240, 240) # Light grey bg
+        self.set_fill_color(252, 244, 249)
         self.set_text_color(0, 0, 0)
         
         # Header "PRAYER"
