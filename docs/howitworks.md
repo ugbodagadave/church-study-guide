@@ -77,8 +77,7 @@ Church Study Guide/
 - **Library**: `fpdf2`
 - **Key Features**:
     - **Dynamic Layout**: Automatically calculates text height for prayers and reflections to prevent overflow.
-    - **Dynamic Branding**: Uses `Pillow` (PIL) to analyze the provided logo (`--logo`).
-        - Extracts the dominant color (Primary) and a secondary color (Accent).
+    - **Branding**: Uses a static premium palette (Navy primary, Rose accent). An optional logo can be placed on the cover but does not affect colors.
     - **Typography**: Loads **Montserrat** fonts dynamically.
     - **Cover Page**: Features bold Preacher Name, Series Title, and Memory Verse.
 
@@ -97,6 +96,5 @@ Church Study Guide/
 - `google-genai` / `openai` / `groq`: LLM SDKs (Migrated from `google-generativeai`).
 - `yt-dlp`: YouTube audio download.
 - `fpdf2`: PDF generation.
-- `Pillow`: Image processing (color extraction).
 - `requests`: For Bible API calls.
 - `python-dotenv`: Environment variable management.

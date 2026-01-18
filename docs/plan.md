@@ -36,7 +36,7 @@
 - [x] Implement `src/design/pdf_designer.py`
   - [x] `fpdf2` class setup
   - [x] Font loading (using standard fonts for now to ensure compatibility)
-  - [x] Color extraction logic (Pillow) with Black/White fallback
+  - [x] Static premium color palette (Navy primary, Rose accent)
   - [x] Page layout design (Cover, Days 1-6)
   - [x] PDF export logic
 - [x] **Test**: Unit tests for PDF designer

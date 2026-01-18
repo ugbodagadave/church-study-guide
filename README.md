@@ -72,4 +72,4 @@ The generated PDF study guide will be saved in the `output/` directory:
 ## Customization
 
 - **Fonts**: The tool uses the **Montserrat** font family. Ensure font files are in `assets/fonts/`.
-- **Branding**: Provide a logo via `--logo`. The tool automatically extracts the primary color from your logo to theme the PDF.
+- **Branding**: The PDF uses a static premium palette (Navy primary, Rose accent). You can still provide a logo via `--logo` to display on the cover, but colors are not derived from the logo.

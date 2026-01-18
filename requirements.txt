@@ -3,7 +3,6 @@ python-dotenv
 fpdf2
 yt-dlp
 requests
-pillow
 google-genai
 # Uncomment based on your LLM provider:
 # google-generativeai  # For Gemini

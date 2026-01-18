@@ -1,19 +1,18 @@
 import os
-from typing import Tuple, Dict, Any, List
+from typing import Dict, Any
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
-from PIL import Image
-import math
 from src.utils.logger import setup_logger
 
 logger = setup_logger("pdf_designer")
 
+
 class PDFDesigner(FPDF):
     def __init__(self, orientation='P', unit='mm', format='A4'):
         super().__init__(orientation=orientation, unit=unit, format=format)
-        self.primary_color = (0, 0, 0) # Default Black
-        self.secondary_color = (100, 100, 100) # Default Grey
-        self.accent_color = (50, 50, 50) # Dark Grey
+        self.primary_color = (24, 37, 72)
+        self.secondary_color = (120, 130, 150)
+        self.accent_color = (211, 83, 121)
         self.set_auto_page_break(auto=True, margin=15)
         self.series_title = ""
         
@@ -36,48 +35,7 @@ class PDFDesigner(FPDF):
         except Exception:
             self.set_font("Helvetica", style, size)
 
-    def extract_colors_from_logo(self, logo_path: str):
-        """
-        Extracts dominant colors from a logo file.
-        Falls back to B&W if fails or path invalid.
-        """
-        if not logo_path or not os.path.exists(logo_path):
-            logger.warning(f"Logo not found at {logo_path}. Using fallback colors.")
-            return
-
-        try:
-            img = Image.open(logo_path)
-            img = img.resize((150, 150))
-            result = img.convert('P', palette=Image.ADAPTIVE, colors=3)
-            result = result.convert('RGB')
-            
-            # Get most frequent colors
-            colors = result.getcolors(150*150)
-            colors.sort(key=lambda x: x[0], reverse=True)
-            
-            # Simple heuristic: Pick top non-white colors
-            extracted = []
-            for count, col in colors:
-                # Skip near-whites and near-transparent
-                if sum(col) > 700: # 255*3 = 765
-                    continue
-                extracted.append(col)
-                if len(extracted) >= 2:
-                    break
-            
-            if extracted:
-                self.primary_color = extracted[0]
-                if len(extracted) > 1:
-                    self.accent_color = extracted[1]
-                logger.info(f"Extracted colors: Primary={self.primary_color}, Accent={self.accent_color}")
-            else:
-                logger.warning("Could not extract suitable colors from logo. Using fallback.")
-
-        except Exception as e:
-            logger.error(f"Error extracting colors: {e}. Using fallback.")
-
     def header(self):
-        # Header on all pages except cover (handled separately or logic here)
         if self.page_no() > 1:
             self._set_font('I', 8)
             self.set_text_color(*self.secondary_color)
@@ -85,17 +43,17 @@ class PDFDesigner(FPDF):
             self.ln(10)
 
     def footer(self):
-        self.set_y(-15)
-        self._set_font('I', 8)
-        self.set_text_color(128)
-        self.cell(0, 10, f'Page {self.page_no()}', new_x=XPos.RIGHT, new_y=YPos.TOP, align='C')
+        if self.page_no() > 1:
+            self.set_y(-15)
+            self._set_font('I', 8)
+            self.set_text_color(128)
+            self.cell(0, 10, f'Page {self.page_no()}', new_x=XPos.RIGHT, new_y=YPos.TOP, align='C')
 
     def create_pdf(self, content: Dict[str, Any], output_path: str, logo_path: str = None):
         """
         Generates the PDF based on content dictionary.
         """
         self.series_title = content.get("series_title", "Study Guide")
-        self.extract_colors_from_logo(logo_path)
         
         # --- Cover Page ---
         self.add_page()
@@ -116,54 +74,53 @@ class PDFDesigner(FPDF):
             raise
 
     def _create_cover_page(self, content: Dict[str, Any], logo_path: str = None):
-        # Logo
         if logo_path and os.path.exists(logo_path):
             try:
-                # Center logo
-                self.image(logo_path, x=75, y=30, w=60)
-                self.ln(80)
+                self.image(logo_path, x=20, y=20, w=30)
             except Exception as e:
                 logger.warning(f"Could not add logo image: {e}")
-                self.ln(50)
-        else:
-            self.ln(50)
 
-        # Title
+        self.set_y(30)
         self._set_font('B', 24)
-        self.set_text_color(*self.primary_color)
-        self.multi_cell(0, 10, content.get("series_title", "Sermon Series").upper(), align='C')
-        self.ln(10)
-        
-        # Subtitle
-        self._set_font('', 14)
-        self.set_text_color(*self.accent_color)
-        self.cell(0, 10, "Discipleship & Study Guide", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-        
-        # Preacher Name
-        if "preacher_name" in content and content["preacher_name"]:
-            self._set_font('I', 12)
-            self.set_text_color(*self.accent_color)
-            self.cell(0, 8, "By", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-            
+        self.set_text_color(255, 255, 255)
+        self.set_fill_color(*self.primary_color)
+        self.set_x(0)
+        self.cell(self.w, 30, "", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
+        self.set_y(35)
+        self._set_font('B', 22)
+        self.cell(0, 10, content.get("series_title", "Sermon Series").upper(), align='C')
+
+        preacher_name = content.get("preacher_name") or ""
+        if preacher_name:
+            self.ln(8)
+            self._set_font('I', 11)
+            self.set_text_color(230, 230, 230)
+            self.cell(0, 6, "By", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
+
+            self.ln(2)
             self._set_font('B', 16)
-            self.set_text_color(*self.primary_color)
-            self.cell(0, 10, content['preacher_name'], new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C')
-        
-        self.ln(20)
-        
-        # Memory Verse Box
-        self.set_fill_color(245, 245, 245)
-        self.set_draw_color(*self.primary_color)
-        self.rect(20, self.get_y(), 170, 40, 'DF')
-        
-        self.set_xy(25, self.get_y() + 5)
+            name_width = self.get_string_width(preacher_name) + 16
+            name_x = (self.w - name_width) / 2
+            self.set_fill_color(*self.accent_color)
+            self.set_text_color(255, 255, 255)
+            self.set_xy(name_x, self.get_y())
+            self.cell(name_width, 10, preacher_name, border=0, align='C', fill=True)
+
+        self.set_y(90)
+        self.set_fill_color(252, 244, 249)
+        self.set_draw_color(*self.accent_color)
+        box_y = self.get_y()
+        self.rect(20, box_y, self.w - 40, 45, 'DF')
+
+        self.set_xy(25, box_y + 6)
         self._set_font('B', 12)
-        self.cell(0, 10, "MEMORY VERSE", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L')
-        
+        self.set_text_color(*self.accent_color)
+        self.cell(0, 6, "MEMORY VERSE", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='L')
+
         self.set_x(25)
         self._set_font('I', 11)
-        self.set_text_color(50, 50, 50)
-        self.multi_cell(160, 6, content.get("memory_verse", ""), align='L')
+        self.set_text_color(40, 40, 40)
+        self.multi_cell(self.w - 50, 6, content.get("memory_verse", ""), align='L')
 
     def _create_day_page(self, day_data: Dict[str, Any]):
         # Day Header

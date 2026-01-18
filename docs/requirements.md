@@ -8,7 +8,6 @@ A tool that automatically converts church sermon audio into professionally desig
 - **Configuration**: python-dotenv
 - **PDF Generation**: fpdf2
 - **Video Extraction**: pytube
-- **Image Processing**: Pillow (for color extraction)
 - **LLM Providers**:
   - google-generativeai (Gemini)
   - openai (OpenAI/OpenRouter)
@@ -75,7 +74,7 @@ A tool that automatically converts church sermon audio into professionally desig
   - Page Size: A4
   - Length: 6-7 pages
   - Typography: Montserrat (11pt body, 14pt headers)
-  - Branding: Auto-extracted colors from church logo
+  - Branding: Static premium palette (Navy primary, Rose accent) with optional logo
 - **Sections**:
   - Cover
   - Memory Verse

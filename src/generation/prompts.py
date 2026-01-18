@@ -11,7 +11,7 @@ _SYSTEM_INSTRUCTIONS = {
             "title": "Format: '[Series Title]: [Main Point]' (e.g., 'Personal Life: Dependence on God'). The first part should be the series title or a consistent theme, the second part the specific focus.",
             "scripture_reference": "Single relevant Bible verse (e.g., 'John 3:16'). Do not use multiple references.",
             "reflection": {
-                "length": "Minimum 350 words",
+                "length": "Approximately 300 words",
                 "tone": "Reflective, transformation-focused, using 'We' and 'Our' to build connection, or 'You' for direct application. Focus on the 'mind muscle' and internal transformation.",
                 "formatting_restrictions": "STRICTLY FORBIDDEN: 1. Markdown (asterisks, bold, italics). 2. Quotation Marks for emphasis. 3. Meta-references: NEVER use phrases like 'The sermon says', 'The speaker notes', 'The message teaches', 'We are reminded by the transcript'. Write with absolute authority as the direct voice. Example: Instead of 'The sermon teaches us to pray', write 'We must pray'.",
                 "style_example": (
